@@ -374,6 +374,21 @@ details.vi .orig{border-radius:0;border:none;border-top:1px solid var(--line);ma
   .mctx .go{font-size:0;gap:0}
   .bb-neon{width:96px!important}
 }
+/* ── Grands écrans ── */
+.t-feed .fe:nth-child(n+11){display:none}
+@media (min-width:1500px){
+  .hdr,.bento{max-width:1560px}
+  .view.wide{max-width:1560px}
+  .t-feed .rank{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:column;grid-template-rows:repeat(10,auto);column-gap:32px}
+  .t-feed .fe:nth-child(n+11){display:grid}
+  .t-feed .fe:nth-child(11){border-top:none}
+  .wide .dgrp,.wide .cards{display:grid;grid-template-columns:1fr 1fr;column-gap:10px}
+  .wide .cards{row-gap:8px}
+}
+@media (min-width:2100px){
+  .hdr,.bento,.view.wide{max-width:1960px}
+  .wide .dgrp,.wide .cards{grid-template-columns:1fr 1fr 1fr}
+}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}
   .spark .ln{stroke-dashoffset:0}
@@ -706,7 +721,7 @@ const BUILD_TS = 1791886484437;
       </div>
       <div class="tile t-feed" ${I()}>
         <div class="th">Fil des vouchs<a class="go" href="#nouveaux">Tout voir ${IC.arrow}</a></div>
-        <div class="rank">${feed.slice(0,10).map(x=>`<div class="fe" data-act="openv" data-id="${escA(x.v.id)}"><span class="n">${esc(x.shop)}<small>${esc(x.method)}</small></span><span class="dl num">${x.v.dl&&x.v.dl!=="—"?esc(x.v.dl):"—"}</span><span class="a num">${esc(x.v.amt)}</span><span class="w"><span class="st ${x.v.f?"ko":"ok"}">${relDays(x.ts)}</span></span></div>`).join("")}</div>
+        <div class="rank">${feed.slice(0,20).map(x=>`<div class="fe" data-act="openv" data-id="${escA(x.v.id)}"><span class="n">${esc(x.shop)}<small>${esc(x.method)}</small></span><span class="dl num">${x.v.dl&&x.v.dl!=="—"?esc(x.v.dl):"—"}</span><span class="a num">${esc(x.v.amt)}</span><span class="w"><span class="st ${x.v.f?"ko":"ok"}">${relDays(x.ts)}</span></span></div>`).join("")}</div>
       </div>
       <div class="tile t-top" ${I()}>
         <div class="th">Top · 3 derniers mois<a class="go" href="#3mois">Voir tout ${IC.arrow}</a></div>
@@ -798,7 +813,7 @@ const BUILD_TS = 1791886484437;
         <span class="cm"><span class="cn">${esc(s.name)}</span><span class="cs">${esc(s.cat)} · ${esc(fams.slice(0,4).join(", "))}${fams.length>4?" +"+(fams.length-4):""}${s.noFiche?' · <span class="nf">sans fiche</span>':""}</span></span>
         <span class="cr"><span class="cv num">${plural(s.totalVouches,"vouch")}</span><span class="cbar"><i style="width:${Math.max(p,3)}%;background:${rateColor(p)}"></i></span><span class="cp num" style="color:${rateColor(p)}">${p}%</span></span>
       </button>`;}).join(""):`<div class="empty">Aucune boutique ne correspond.</div>`;
-    return `<section class="view">${viewHead(title,sub)}${filterBar(view==="3m"?"3m":"shops")}
+    return `<section class="view wide">${viewHead(title,sub)}${filterBar(view==="3m"?"3m":"shops")}
       ${view==="3m"?`<div class="note">Taux recalculés uniquement à partir des vouchs des ${FENETRE_JOURS} derniers jours.</div>`:""}
       <div class="cards">${rows}</div></section>`;
   }
@@ -812,14 +827,15 @@ const BUILD_TS = 1791886484437;
     const perDay=new Map(); all.forEach(x=>perDay.set(x.ts,(perDay.get(x.ts)||0)+1));
     let html="",cur=null;
     shown.forEach(x=>{
-      if(x.ts!==cur){ cur=x.ts; html+=`<div class="day"><b>${esc(dayLabel(x.ts))}</b><span class="num">${plural(perDay.get(x.ts),"vouch")}</span></div>`; }
+      if(x.ts!==cur){ html+=(cur===null?"":"</div>")+`<div class="day"><b>${esc(dayLabel(x.ts))}</b><span class="num">${plural(perDay.get(x.ts),"vouch")}</span></div><div class="dgrp">`; cur=x.ts; }
       const s=SHOP_BY_NAME.get(x.shop), v=x.v;
       html+=`<div class="frow" data-act="openv" data-id="${escA(v.id)}"><span class="n">${esc(x.shop)}<small>${esc(s?s.cat:"")}</small></span>
         <span class="m"><span class="mtag">${esc(x.method)}</span></span><span class="d num">${v.dl&&v.dl!=="—"?esc(v.dl):"—"}</span>
         <span class="a num">${esc(v.amt)}</span><span class="s"><span class="st ${v.f?"ko":"ok"}">${v.f?"Fail":"Réussi"}</span></span>${IC.chev}</div>`;
     });
+    if(cur!==null) html+="</div>";
     const more=all.length>shown.length?`<button class="more" data-act="more">Afficher ${Math.min(FEED_PAS,all.length-shown.length)} de plus</button>`:"";
-    return `<section class="view">${viewHead("Nouveaux vouchs",plural(all.length,"vouch"))}${filterBar("feed")}
+    return `<section class="view wide">${viewHead("Nouveaux vouchs",plural(all.length,"vouch"))}${filterBar("feed")}
       ${all.length?html+more:`<div class="empty">Aucun vouch ne correspond.</div>`}</section>`;
   }
 
